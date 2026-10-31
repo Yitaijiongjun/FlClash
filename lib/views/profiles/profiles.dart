@@ -13,7 +13,7 @@ import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/material.dart' show FloatingActionButton, Icons;
+import 'package:flutter/material.dart' as md show FloatingActionButton, Icons;
 
 import 'add.dart';
 import 'edit.dart';
@@ -132,11 +132,11 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
           body: ClassicFabOverlay(
             action: useClassicFab && state.profiles.isNotEmpty
                 ? AddProfileMenu(
-                    builder: (open) => FloatingActionButton(
+                    builder: (open) => md.FloatingActionButton(
                       heroTag: null,
                       tooltip: appLocalizations.addProfile,
                       onPressed: open,
-                      child: const Icon(Icons.add),
+                      child: const md.Icon(md.Icons.add),
                     ),
                   )
                 : null,
