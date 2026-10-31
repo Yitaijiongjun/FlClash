@@ -161,7 +161,10 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
     final isLoading = ref.watch(loadingProvider(LoadingTag.proxies));
     final picker = widget.picker;
     final useClassicFab =
-        system.isAndroid && ref.watch(isMobileViewProvider) && !picker && _isTab;
+        system.isAndroid &&
+        ref.watch(isMobileViewProvider) &&
+        !picker &&
+        _isTab;
     final isSearching = ref.watch(
       queryProvider(QueryTag.proxies).select(
         (query) => SearchQuery(query).isNotEmpty,
