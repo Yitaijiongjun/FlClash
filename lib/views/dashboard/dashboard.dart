@@ -95,7 +95,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                   )
                 : _MobileDashboard(
                     platform: platform,
-                    gap: gap,
+                    gap: system.isAndroid && gap > 8 ? 8.0 : gap,
                     editing: editing,
                     cardKeyOf: _cardKeyOf,
                     onDone: () => _setEditing(false),
