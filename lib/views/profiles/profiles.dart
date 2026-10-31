@@ -105,7 +105,10 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
         final appLocalizations = context.appLocalizations;
         final isLoading = ref.watch(loadingProvider(LoadingTag.profiles));
         final state = ref.watch(profilesStateProvider);
-        final originalSpacing = cardSpacingOf(context, ref.watch(viewModeProvider));
+        final originalSpacing = cardSpacingOf(
+          context,
+          ref.watch(viewModeProvider),
+        );
         final picker = widget.picker;
         final useClassicFab =
             system.isAndroid && ref.watch(isMobileViewProvider) && !picker;
@@ -139,24 +142,24 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
                 : null,
             child: NullStatusSwitcher(
               isEmpty: state.profiles.isEmpty,
-            nullStatus: NullStatus(
-              label: appLocalizations.nullTip(appLocalizations.profiles),
-              description: appLocalizations.nullProfileDesc,
-              illustration: NullStatusIllustration.profile,
-              action: AddProfileMenu(
-                builder: (open) => TonalButton(
-                  size: TonalButtonSize.bar,
-                  glyph: AppGlyphs.addCircle,
-                  label: appLocalizations.addProfile,
-                  onPressed: open,
+              nullStatus: NullStatus(
+                label: appLocalizations.nullTip(appLocalizations.profiles),
+                description: appLocalizations.nullProfileDesc,
+                illustration: NullStatusIllustration.profile,
+                action: AddProfileMenu(
+                  builder: (open) => TonalButton(
+                    size: TonalButtonSize.bar,
+                    glyph: AppGlyphs.addCircle,
+                    label: appLocalizations.addProfile,
+                    onPressed: open,
+                  ),
                 ),
               ),
-            ),
-            child: _ProfilesGrid(
-              profiles: state.profiles,
-              currentProfileId: state.currentProfileId,
-              spacing: spacing,
-              revealsSelected: !picker,
+              child: _ProfilesGrid(
+                profiles: state.profiles,
+                currentProfileId: state.currentProfileId,
+                spacing: spacing,
+                revealsSelected: !picker,
               ),
             ),
           ),
