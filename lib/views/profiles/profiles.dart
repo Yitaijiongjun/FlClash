@@ -13,7 +13,7 @@ import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/material.dart' as md show FloatingActionButton, Icons;
+import 'package:flutter/material.dart' as md show FloatingActionButton, Icons, Icon;
 
 import 'add.dart';
 import 'edit.dart';
