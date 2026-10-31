@@ -14,7 +14,10 @@ import 'common.dart';
 import 'group_tabs.dart';
 
 class ProxiesTabView extends ConsumerStatefulWidget {
-  const ProxiesTabView({super.key});
+  const ProxiesTabView({super.key, this.reserveFabSpace = false});
+
+  /// Picker sheets use the toolbar, not the classic floating action.
+  final bool reserveFabSpace;
 
   static Map<String, PageStorageKey> pageListStoreMap = {};
 
@@ -213,6 +216,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
                                 group: group,
                                 columns: columns,
                                 cardType: cardType,
+                                reserveFabSpace: widget.reserveFabSpace,
                               ),
                           ],
                         );
@@ -231,6 +235,7 @@ class ProxyGroupView extends ConsumerWidget {
   final ScrollController controller;
   final int columns;
   final ProxyCardType cardType;
+  final bool reserveFabSpace;
 
   const ProxyGroupView({
     super.key,
@@ -238,6 +243,7 @@ class ProxyGroupView extends ConsumerWidget {
     required this.controller,
     required this.columns,
     required this.cardType,
+    required this.reserveFabSpace,
   });
 
   PageStorageKey _getPageStorageKey(WidgetRef ref) {
@@ -260,9 +266,10 @@ class ProxyGroupView extends ConsumerWidget {
         key: _getPageStorageKey(ref),
         controller: controller,
         padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: 16 + context.bottomInset,
+          left: system.isAndroid && context.isMobileView ? 12 : 16,
+          right: system.isAndroid && context.isMobileView ? 12 : 16,
+          bottom: (reserveFabSpace && context.isMobileView ? 96 : 16) +
+              context.bottomInset,
         ),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: columns,

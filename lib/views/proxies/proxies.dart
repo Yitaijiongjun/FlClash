@@ -1,3 +1,4 @@
+import 'package:fl_clash/classic_ui/classic_fab_overlay.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
@@ -7,6 +8,7 @@ import 'package:fl_clash/views/proxies/list.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart' show FloatingActionButton;
 
 import 'tab.dart';
 
@@ -26,7 +28,10 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
 
   // The same instance on every build, so the bar changing with the current
   // group or its delay test leaves the page alone.
-  late final _tabView = ProxiesTabView(key: _proxiesTabKey);
+  late final _tabView = ProxiesTabView(
+    key: _proxiesTabKey,
+    reserveFabSpace: system.isAndroid && !widget.picker,
+  );
   bool _isTab = false;
 
   void _updateStyle(
@@ -155,7 +160,19 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
     final style = ref.watch(proxiesStyleSettingProvider);
     final isLoading = ref.watch(loadingProvider(LoadingTag.proxies));
     final picker = widget.picker;
-    final primaryAction = _buildPrimaryAction();
+    final useClassicFab =
+        system.isAndroid &&
+        ref.watch(isMobileViewProvider) &&
+        !picker &&
+        _isTab;
+    final isSearching = ref.watch(
+      queryProvider(QueryTag.proxies).select(
+        (query) => SearchQuery(query).isNotEmpty,
+      ),
+    );
+    final isDelayTesting = ref.watch(currentGroupDelayTestingProvider);
+    // Preserve the existing toolbar action on desktop and in picker sheets.
+    final primaryAction = useClassicFab ? null : _buildPrimaryAction();
     return CommonScaffold(
       isLoading: isLoading,
       resizeToAvoidBottomInset: false,
@@ -174,10 +191,24 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
       menuItems: picker ? const [] : _buildMenuItems(context, style),
       title: context.appLocalizations.proxies,
       searchState: AppBarSearchState(onSearch: _onSearch),
-      body: switch (style.type) {
-        ProxiesType.tab => _tabView,
-        ProxiesType.list => const ProxiesListView(),
-      },
+      body: ClassicFabOverlay(
+        action: useClassicFab && !isSearching
+            ? FloatingActionButton(
+                heroTag: null,
+                tooltip: context.appLocalizations.delayTest,
+                onPressed: isDelayTesting
+                    ? null
+                    : () {
+                        _proxiesTabKey.currentState?.delayTestCurrentGroup();
+                      },
+                child: const GlyphIcon(AppGlyphs.bolt),
+              )
+            : null,
+        child: switch (style.type) {
+          ProxiesType.tab => _tabView,
+          ProxiesType.list => const ProxiesListView(),
+        },
+      ),
     );
   }
 }

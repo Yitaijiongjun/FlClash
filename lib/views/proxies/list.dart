@@ -185,8 +185,12 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
           ),
           child: WidthBuilder(
             builder: (_, maxWidth) {
-              final gap = cardSpacingOf(context, viewMode);
-              final width = max(maxWidth - _groupInset * 2, 0.0);
+              final rawGap = cardSpacingOf(context, viewMode);
+              final compactMobile =
+                  system.isAndroid && viewMode == ViewMode.mobile;
+              final gap = compactMobile && rawGap > 8 ? 8.0 : rawGap;
+              final groupInset = compactMobile ? 12.0 : _groupInset;
+              final width = max(maxWidth - groupInset * 2, 0.0);
               final groupColumns = viewMode == ViewMode.mobile
                   ? 1
                   : ((width + gap) / (_groupMinWidth + gap)).floor().clamp(
@@ -222,8 +226,8 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
                       child: SizedBox(height: context.contentTopPadding),
                     ),
                     SliverPadding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: _groupInset,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: groupInset,
                       ),
                       sliver: groupColumns == 1
                           ? SliverMainAxisGroup(

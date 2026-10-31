@@ -198,14 +198,18 @@ class ProxyCard extends ConsumerWidget {
             addable: _isAddableToLocal(proxy, isCustomProfile: isCustomProfile),
           ),
           child: CommonCard(
-            radius: AppCorner.lg,
+            radius: system.isAndroid && context.isMobileView
+                ? AppCorner.sm
+                : AppCorner.lg,
             enterActionsOnRight: true,
             key: key,
             onPressed: () => _handleSelect(ref),
             isSelected: inUse,
             child: Container(
               alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: system.isAndroid && context.isMobileView ? 10 : 12,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,

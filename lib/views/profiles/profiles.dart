@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fl_clash/classic_ui/classic_fab_overlay.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
@@ -12,6 +13,7 @@ import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart' show FloatingActionButton, Icons;
 
 import 'add.dart';
 import 'edit.dart';
@@ -26,6 +28,10 @@ double get _profileItemHeight {
       measure.textHeight(AppTextStyle.footnote) +
       2 * listRowVerticalPadding;
 }
+
+double _profileItemHeightFor(BuildContext context) =>
+    _profileItemHeight -
+    (system.isAndroid && context.isMobileView ? 8.0 : 0.0);
 
 class ProfilesView extends ConsumerStatefulWidget {
   const ProfilesView({super.key, this.picker = false});
@@ -99,13 +105,20 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
         final appLocalizations = context.appLocalizations;
         final isLoading = ref.watch(loadingProvider(LoadingTag.profiles));
         final state = ref.watch(profilesStateProvider);
-        final spacing = cardSpacingOf(context, ref.watch(viewModeProvider));
+        final originalSpacing = cardSpacingOf(
+          context,
+          ref.watch(viewModeProvider),
+        );
         final picker = widget.picker;
+        final useClassicFab =
+            system.isAndroid && ref.watch(isMobileViewProvider) && !picker;
+        final spacing =
+            useClassicFab && originalSpacing > 8 ? 8.0 : originalSpacing;
         return CommonScaffold(
           isLoading: isLoading,
           title: appLocalizations.profiles,
           iconActions: picker ? const [] : _buildActions(state.profiles),
-          actions: state.profiles.isEmpty || picker
+          actions: state.profiles.isEmpty || picker || useClassicFab
               ? null
               : [
                   AddProfileMenu(
@@ -116,26 +129,38 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
                     ),
                   ),
                 ],
-          body: NullStatusSwitcher(
-            isEmpty: state.profiles.isEmpty,
-            nullStatus: NullStatus(
-              label: appLocalizations.nullTip(appLocalizations.profiles),
-              description: appLocalizations.nullProfileDesc,
-              illustration: NullStatusIllustration.profile,
-              action: AddProfileMenu(
-                builder: (open) => TonalButton(
-                  size: TonalButtonSize.bar,
-                  glyph: AppGlyphs.addCircle,
-                  label: appLocalizations.addProfile,
-                  onPressed: open,
+          body: ClassicFabOverlay(
+            action: useClassicFab && state.profiles.isNotEmpty
+                ? AddProfileMenu(
+                    builder: (open) => FloatingActionButton(
+                      heroTag: null,
+                      tooltip: appLocalizations.addProfile,
+                      onPressed: open,
+                      child: const Icon(Icons.add),
+                    ),
+                  )
+                : null,
+            child: NullStatusSwitcher(
+              isEmpty: state.profiles.isEmpty,
+              nullStatus: NullStatus(
+                label: appLocalizations.nullTip(appLocalizations.profiles),
+                description: appLocalizations.nullProfileDesc,
+                illustration: NullStatusIllustration.profile,
+                action: AddProfileMenu(
+                  builder: (open) => TonalButton(
+                    size: TonalButtonSize.bar,
+                    glyph: AppGlyphs.addCircle,
+                    label: appLocalizations.addProfile,
+                    onPressed: open,
+                  ),
                 ),
               ),
-            ),
-            child: _ProfilesGrid(
-              profiles: state.profiles,
-              currentProfileId: state.currentProfileId,
-              spacing: spacing,
-              revealsSelected: !picker,
+              child: _ProfilesGrid(
+                profiles: state.profiles,
+                currentProfileId: state.currentProfileId,
+                spacing: spacing,
+                revealsSelected: !picker,
+              ),
             ),
           ),
         );
@@ -195,7 +220,10 @@ class _ProfilesGridState extends ConsumerState<_ProfilesGrid> {
     left: _horizontalPadding,
     right: _horizontalPadding,
     top: context.contentTopPadding,
-    bottom: 16 + context.bottomInset,
+    bottom: (system.isAndroid && context.isMobileView && widget.revealsSelected
+            ? 96
+            : 16) +
+        context.bottomInset,
   );
 
   int _columnsFor(double width) => getProfilesColumns(
@@ -216,7 +244,7 @@ class _ProfilesGridState extends ConsumerState<_ProfilesGrid> {
     }
     final position = _controller.position;
     final padding = _padding;
-    final height = _profileItemHeight;
+    final height = _profileItemHeightFor(context);
     final row = index ~/ _columnsFor(context.size!.width);
     final atTop = row * (height + widget.spacing);
     final atBottom =
@@ -245,7 +273,7 @@ class _ProfilesGridState extends ConsumerState<_ProfilesGrid> {
             crossAxisCount: _columnsFor(width),
             mainAxisSpacing: widget.spacing,
             crossAxisSpacing: widget.spacing,
-            mainAxisExtent: _profileItemHeight,
+            mainAxisExtent: _profileItemHeightFor(context),
           ),
           itemCount: profiles.length,
           itemBuilder: (context, index) {
@@ -504,15 +532,19 @@ class ProfileItem extends ConsumerWidget {
       menuItems: isUpdating ? null : _menuItems(context, ref),
       child: CommonCard(
         enterActionsOnRight: true,
-        radius: AppCorner.xl,
+        radius: system.isAndroid && context.isMobileView
+            ? AppCorner.sm
+            : AppCorner.xl,
         isSelected: isSelected,
         onPressed: () {
           onChanged(profile.id);
         },
         child: ListItem(
           key: Key(profile.id.toString()),
-          minTileHeight: _profileItemHeight,
-          minVerticalPadding: listRowVerticalPadding,
+          minTileHeight: _profileItemHeightFor(context),
+          minVerticalPadding: system.isAndroid && context.isMobileView
+              ? 6
+              : listRowVerticalPadding,
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             spacing: 8,

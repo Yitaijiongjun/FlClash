@@ -63,9 +63,12 @@ class _HomeShell extends ConsumerWidget {
     final state = ref.watch(navigationStateProvider);
     final isMobile = state.viewMode == ViewMode.mobile;
     final navigationItems = state.navigationItems;
-    final floating = ref.watch(
-      appSettingProvider.select((state) => state.floatingNavigationBar),
-    );
+    // Keep Android's classic fixed bottom navigation. Other platforms
+    // retain the upstream floating-dock setting.
+    final floating = !system.isAndroid &&
+        ref.watch(
+          appSettingProvider.select((state) => state.floatingNavigationBar),
+        );
     return Material(
       color: SurfaceLevel.page.colorOf(context.colorScheme),
       child: Column(
@@ -114,6 +117,7 @@ class _HomeShell extends ConsumerWidget {
             visible: isMobile && !floating,
             child: _NavigationPadding(
               child: NavigationBar(
+                height: system.isAndroid ? 64 : null,
                 destinations: [
                   for (final (index, item) in navigationItems.indexed)
                     NavigationDestination(
