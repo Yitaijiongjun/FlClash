@@ -8,7 +8,7 @@ import 'package:fl_clash/views/proxies/list.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/material.dart' show FloatingActionButton;
+import 'package:flutter/material.dart' as md show FloatingActionButton;
 
 import 'tab.dart';
 
@@ -193,7 +193,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
       searchState: AppBarSearchState(onSearch: _onSearch),
       body: ClassicFabOverlay(
         action: useClassicFab && !isSearching
-            ? FloatingActionButton(
+            ? md.FloatingActionButton(
                 heroTag: null,
                 tooltip: context.appLocalizations.delayTest,
                 onPressed: isDelayTesting
