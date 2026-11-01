@@ -21,7 +21,9 @@ const _groupMaxColumns = 3;
 const _lastRowGrowth = _headerInset - proxyGridSpacing;
 
 class ProxiesListView extends ConsumerStatefulWidget {
-  const ProxiesListView({super.key});
+  const ProxiesListView({super.key, this.reserveFabSpace = false});
+
+  final bool reserveFabSpace;
 
   @override
   ConsumerState<ProxiesListView> createState() => _ProxiesListViewState();
@@ -263,7 +265,10 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
                             ),
                     ),
                     SliverToBoxAdapter(
-                      child: SizedBox(height: 16 + context.bottomInset),
+                      child: SizedBox(
+                        height: (widget.reserveFabSpace ? 96 : 16) +
+                            context.bottomInset,
+                      ),
                     ),
                   ],
                 ),
