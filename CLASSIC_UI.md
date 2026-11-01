@@ -9,17 +9,30 @@ presentation is adapted toward a thumb-reachable Material layout.
 - Android uses the existing fixed bottom `NavigationBar` (64 dp height),
   instead of the floating dock. The existing floating-dock preference is
   intentionally ignored on Android; other platforms are unaffected.
-- The proxy tab keeps upstream `delayTestCurrentGroup()` logic, but exposes
-  it via a bottom-right FAB. Busy state disables the button and searching
-  hides it. Desktop and proxy picker sheets keep their toolbar button.
+- Both Android proxy layouts expose a bottom-right delay-test FAB:
+  tabs use upstream `delayTestCurrentGroup()`, while the default list uses
+  `delayTestGroups()` on visible groups. Busy state disables the button,
+  search hides it, and desktop/picker sheets keep their original controls.
 - The profile page keeps `AddProfileMenu` (link/file/QR/custom) and exposes
-  it via a bottom-right FAB when profiles exist. The empty-state add button
-  and picker sheets remain unchanged.
+  it via a bottom-right FAB even for an empty profile list. Picker sheets
+  retain the original add control.
 - Android profile and proxy cards use less rounded corners and tighter
   spacing. Mobile dashboard card gaps are capped at 8 dp.
 - Scrollable lists reserve bottom space so FABs do not obscure the last item.
+- Android's launcher and quick-settings label is `FlClash Classic`, to make
+  it clear which app was installed.
 - The small `lib/classic_ui/classic_fab_overlay.dart` adapter is intentionally
   separate from upstream's shared `lib/ui/scaffold.dart`.
+
+## Installation and signing
+
+The first CI artifact was a debug APK with Android package
+`com.follow.clash.dev`; it did not replace an official FlClash installation.
+The release APK has package `com.follow.clash` and uses the fork's GitHub
+Secrets. A newly generated signing key does **not** match the official
+FlClash certificate: back up your profiles and settings, then uninstall the
+official app before installing this newly signed release. Never try to
+overwrite another certificate's APK.
 
 ## Sync with upstream
 
