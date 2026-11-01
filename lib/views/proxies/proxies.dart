@@ -160,17 +160,22 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
     final style = ref.watch(proxiesStyleSettingProvider);
     final isLoading = ref.watch(loadingProvider(LoadingTag.proxies));
     final picker = widget.picker;
+    // The default proxy view is a list. Offer the FAB in both layouts.
     final useClassicFab =
-        system.isAndroid &&
-        ref.watch(isMobileViewProvider) &&
-        !picker &&
-        _isTab;
+        system.isAndroid && ref.watch(isMobileViewProvider) && !picker;
     final isSearching = ref.watch(
       queryProvider(QueryTag.proxies).select(
         (query) => SearchQuery(query).isNotEmpty,
       ),
     );
-    final isDelayTesting = ref.watch(currentGroupDelayTestingProvider);
+    final isDelayTesting = style.type == ProxiesType.tab
+        ? ref.watch(currentGroupDelayTestingProvider)
+        : ref.watch(
+            pendingDelayTestsProvider.select((state) => state.isNotEmpty),
+          );
+    final listGroups = style.type == ProxiesType.list
+        ? ref.watch(proxiesListStateProvider.select((state) => state.groups))
+        : const <Group>[];
     // Preserve the existing toolbar action on desktop and in picker sheets.
     final primaryAction = useClassicFab ? null : _buildPrimaryAction();
     return CommonScaffold(
@@ -196,17 +201,26 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
             ? md.FloatingActionButton(
                 heroTag: null,
                 tooltip: context.appLocalizations.delayTest,
-                onPressed: isDelayTesting
+                onPressed: isDelayTesting ||
+                        (style.type == ProxiesType.list && listGroups.isEmpty)
                     ? null
                     : () {
-                        _proxiesTabKey.currentState?.delayTestCurrentGroup();
+                        if (style.type == ProxiesType.tab) {
+                          _proxiesTabKey.currentState?.delayTestCurrentGroup();
+                        } else {
+                          ref
+                              .read(proxiesActionProvider.notifier)
+                              .delayTestGroups(listGroups);
+                        }
                       },
                 child: const GlyphIcon(AppGlyphs.bolt),
               )
             : null,
         child: switch (style.type) {
           ProxiesType.tab => _tabView,
-          ProxiesType.list => const ProxiesListView(),
+          ProxiesType.list => ProxiesListView(
+            reserveFabSpace: useClassicFab,
+          ),
         },
       ),
     );

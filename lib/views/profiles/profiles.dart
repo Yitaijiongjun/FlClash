@@ -130,7 +130,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
                   ),
                 ],
           body: ClassicFabOverlay(
-            action: useClassicFab && state.profiles.isNotEmpty
+            action: useClassicFab
                 ? AddProfileMenu(
                     builder: (open) => md.FloatingActionButton(
                       heroTag: null,
@@ -146,14 +146,16 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
                 label: appLocalizations.nullTip(appLocalizations.profiles),
                 description: appLocalizations.nullProfileDesc,
                 illustration: NullStatusIllustration.profile,
-                action: AddProfileMenu(
-                  builder: (open) => TonalButton(
-                    size: TonalButtonSize.bar,
-                    glyph: AppGlyphs.addCircle,
-                    label: appLocalizations.addProfile,
-                    onPressed: open,
-                  ),
-                ),
+                action: useClassicFab
+                    ? null
+                    : AddProfileMenu(
+                        builder: (open) => TonalButton(
+                          size: TonalButtonSize.bar,
+                          glyph: AppGlyphs.addCircle,
+                          label: appLocalizations.addProfile,
+                          onPressed: open,
+                        ),
+                      ),
               ),
               child: _ProfilesGrid(
                 profiles: state.profiles,
